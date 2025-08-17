@@ -1,0 +1,7 @@
+CREATE TABLE discoveries (
+  id BIGSERIAL PRIMARY KEY,
+  image_data TEXT NOT NULL,
+  fact TEXT NOT NULL,
+  category TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);

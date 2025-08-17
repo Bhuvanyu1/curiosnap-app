@@ -1,0 +1,1 @@
+{"id": "curiosnap-app-o9m2", "lang": "typescript"}
