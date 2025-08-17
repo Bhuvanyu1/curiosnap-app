@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Sparkles, Share2, Heart, Copy, MessageCircle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Share2, Heart } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
 interface FactCardProps {
@@ -10,56 +10,74 @@ interface FactCardProps {
   category: string;
   imageData: string;
   timestamp?: Date;
+  discoveryId?: number;
+  showActions?: boolean;
 }
 
-const categoryColors: Record<string, string> = {
-  science: 'bg-blue-100 text-blue-800',
-  history: 'bg-amber-100 text-amber-800',
-  nature: 'bg-green-100 text-green-800',
-  technology: 'bg-purple-100 text-purple-800',
-  culture: 'bg-pink-100 text-pink-800',
-  food: 'bg-orange-100 text-orange-800',
-  art: 'bg-indigo-100 text-indigo-800',
-  general: 'bg-gray-100 text-gray-800',
-};
-
-export default function FactCard({ fact, category, imageData, timestamp }: FactCardProps) {
+export default function FactCard({ 
+  fact, 
+  category, 
+  imageData, 
+  timestamp, 
+  discoveryId,
+  showActions = true 
+}: FactCardProps) {
+  const [isLiked, setIsLiked] = useState(false);
+  const [shareCount, setShareCount] = useState(0);
   const { toast } = useToast();
 
+  const getCategoryColor = (category: string) => {
+    const colors: { [key: string]: string } = {
+      science: 'bg-blue-100 text-blue-800',
+      history: 'bg-purple-100 text-purple-800',
+      nature: 'bg-green-100 text-green-800',
+      technology: 'bg-gray-100 text-gray-800',
+      culture: 'bg-orange-100 text-orange-800',
+      food: 'bg-red-100 text-red-800',
+      art: 'bg-pink-100 text-pink-800',
+      general: 'bg-yellow-100 text-yellow-800',
+    };
+    return colors[category] || colors.general;
+  };
+
   const handleShare = async () => {
+    const shareText = `🤔 Did you know? ${fact}\n\nDiscovered this amazing ${category} fact with CurioSnap! 📸✨`;
+    
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Amazing Discovery from CurioSnap!',
-          text: fact,
+          title: 'CurioSnap Discovery',
+          text: shareText,
+          url: window.location.origin,
         });
+        setShareCount(prev => prev + 1);
       } catch (error) {
-        // User cancelled sharing
+        console.log('Error sharing:', error);
       }
     } else {
-      // Fallback to clipboard
-      try {
-        await navigator.clipboard.writeText(fact);
-        toast({
-          title: "Copied to clipboard!",
-          description: "The fact has been copied to your clipboard.",
-        });
-      } catch (error) {
-        toast({
-          title: "Share failed",
-          description: "Unable to share this fact.",
-          variant: "destructive",
-        });
-      }
+      // Fallback for browsers that don't support Web Share API
+      await navigator.clipboard.writeText(shareText);
+      toast({
+        title: "Copied to clipboard!",
+        description: "Share this fact with your friends.",
+      });
     }
   };
 
-  const formatTimestamp = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+  const handleLike = () => {
+    setIsLiked(!isLiked);
+    toast({
+      title: isLiked ? "Removed from favorites" : "Added to favorites",
+      description: isLiked ? "Fact removed from your favorites." : "Fact saved to your favorites!",
+    });
+  };
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(fact);
+    toast({
+      title: "Fact copied!",
+      description: "The fact has been copied to your clipboard.",
+    });
     }).format(date);
   };
 

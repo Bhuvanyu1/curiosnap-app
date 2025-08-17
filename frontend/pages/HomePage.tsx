@@ -3,7 +3,7 @@ import { Camera, Sparkles, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
-import backend from '~backend/client';
+import { useAuth } from '../contexts/AuthContext';
 import FactCard from '../components/FactCard';
 
 export default function HomePage() {
@@ -16,6 +16,7 @@ export default function HomePage() {
   } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const { user, updateUser } = useAuth();
 
   const handleImageCapture = async (file: File) => {
     if (!file) return;
@@ -30,22 +31,50 @@ export default function HomePage() {
         const base64Image = base64Data.split(',')[1]; // Remove data:image/jpeg;base64, prefix
 
         try {
-          // Analyze the image
-          const result = await backend.discovery.analyzeImage({
-            imageData: base64Image
+          // Analyze the image using API client
+          const analyzeResponse = await fetch('/api/analyze', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('curiosnap_token')}`,
+            },
+            body: JSON.stringify({ imageData: base64Image }),
           });
 
+          if (!analyzeResponse.ok) {
+            throw new Error('Failed to analyze image');
+          }
+
+          const result = await analyzeResponse.json();
+
           // Save the discovery
-          await backend.discovery.saveDiscovery({
-            imageData: base64Image,
-            fact: result.fact,
-            category: result.category
+          const saveResponse = await fetch('/api/save', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('curiosnap_token')}`,
+            },
+            body: JSON.stringify({
+              imageData: base64Image,
+              fact: result.fact,
+              category: result.category,
+            }),
           });
+
+          if (!saveResponse.ok) {
+            throw new Error('Failed to save discovery');
+          }
 
           setCurrentFact({
             fact: result.fact,
             category: result.category,
             imageData: base64Data
+          });
+
+          // Update user stats in context
+          updateUser({
+            totalFacts: (user?.totalFacts || 0) + 1,
+            streakCount: (user?.streakCount || 0) + 1,
           });
 
           toast({

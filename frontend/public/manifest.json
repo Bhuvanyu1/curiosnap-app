@@ -1,0 +1,60 @@
+{
+  "name": "CurioSnap - Discover Amazing Facts",
+  "short_name": "CurioSnap",
+  "description": "Transform everyday photos into fascinating learning experiences with AI-powered fact generation",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#667eea",
+  "theme_color": "#667eea",
+  "orientation": "portrait-primary",
+  "categories": ["education", "photography", "lifestyle"],
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Take Photo",
+      "short_name": "Camera",
+      "description": "Quickly capture and analyze a new photo",
+      "url": "/?action=camera",
+      "icons": [
+        {
+          "src": "/camera-icon.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "View History",
+      "short_name": "History",
+      "description": "Browse your discovery history",
+      "url": "/history",
+      "icons": [
+        {
+          "src": "/history-icon.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ]
+}

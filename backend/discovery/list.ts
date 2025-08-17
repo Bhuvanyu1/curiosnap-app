@@ -22,8 +22,8 @@ interface ListDiscoveriesResponse {
 
 // Lists saved discoveries with pagination.
 export const listDiscoveries = api<ListDiscoveriesRequest, ListDiscoveriesResponse>(
-  { expose: true, method: "GET", path: "/discoveries" },
-  async (req) => {
+  { expose: true, method: "GET", path: "/discoveries", auth: true },
+  async (req, ctx) => {
     const limit = req.limit || 20;
     const offset = req.offset || 0;
 
@@ -36,13 +36,14 @@ export const listDiscoveries = api<ListDiscoveriesRequest, ListDiscoveriesRespon
     }>`
       SELECT id, image_data, fact, category, created_at
       FROM discoveries
+      WHERE user_id = ${ctx.userID}
       ORDER BY created_at DESC
       LIMIT ${limit}
       OFFSET ${offset}
     `;
 
     const totalResult = await discoveryDB.queryRow<{ count: number }>`
-      SELECT COUNT(*) as count FROM discoveries
+      SELECT COUNT(*) as count FROM discoveries WHERE user_id = ${ctx.userID}
     `;
 
     return {
